@@ -1,4 +1,5 @@
 Project name: Vision Mouse
+GitHub: https://github.com/mgradec1/project-boiler-plate/tree/master/VisionMouse
 
 Group members: Cody Fagley, Mark A. Gradecki, Shane Firnekas, Wyatt Horner
 
