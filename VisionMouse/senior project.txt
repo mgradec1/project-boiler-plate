@@ -1,0 +1,10 @@
+Current Program direction:
+
+Use opencv to track the right eye and use some method to differenciate four directions. UP, DOWN, LEFT, and RIGHT using these inputs we will use setcursorpos(x,y) to move the mouse using these simulated arrow key presses.
+
+CURRENT PROBLEM:
+Track the iris with enough certainty to have an up down left right. 
+
+POSSIBLE SOLUTION:
+Current idea is to define a point at the bridge of the nose and track the right eye only. then mesure the distance between these two points, if the distance is lower than a given length execute a left, if it is greater than a certain distance exceute right.
+ISSUE WITH SOULTION: how to define an up or down.
