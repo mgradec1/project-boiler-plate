@@ -10,6 +10,8 @@ using namespace std;
 CascadeClassifier face_cascade;
 int iLastX = -1;
 int iLastY = -1;
+int totalY = GetSystemMetrics(SM_CXSCREEN); //get total size in pixels of screen's height
+int totalX = GetSystemMetrics(SM_CYSCREEN); //get total size in pixels of screen's width
 
 void detectAndDisplay(Mat frame)
 {
@@ -18,24 +20,24 @@ void detectAndDisplay(Mat frame)
 	cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
 	equalizeHist(frame_gray, frame_gray);
 	//-- Detect faces
-	face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+	face_cascade.detectMultiScale(frame_gray, faces, 2, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
 	
 	for (size_t i = 0; i < faces.size(); i++) {
 		Point center(faces[i].x + faces[i].width / 2, faces[i].y + faces[i].height / 2);
 		ellipse(frame, center, Size(faces[i].width / 2, faces[i].height / 2), 0, 0, 360, Scalar(255, 0, 255), 4, 8, 0);
 		Mat faceROI = frame_gray(faces[i]);
 
-		if (center.x > iLastX) {
-		SetCursorPos(center.x + 20, center.y);
+		if (center.x > iLastX + 7) {
+		SetCursorPos(center.x + (totalX/4), center.y);
 		}
-		if (center.x < iLastX) {
-			SetCursorPos(center.x - 20, center.y);
+		if (center.x < iLastX - 7) {
+			SetCursorPos(center.x - (totalX / 4), center.y);
 		}
-		if (center.y > iLastY) {
-			SetCursorPos(center.x, center.y + 20);
+		if (center.y > iLastY + 7) {
+			SetCursorPos(center.x, center.y + (totalY / 4));
 		}
-		if (center.y > iLastX) {
-			SetCursorPos(center.x, center.y - 20);
+		if (center.y > iLastX - 7) {
+			SetCursorPos(center.x, center.y - (totalY / 4));
 		}
 
 
@@ -48,8 +50,7 @@ void detectAndDisplay(Mat frame)
 int main(int argc, char** argv){
 	VideoCapture cap(0); //capture the video from webcam
 	String face_cascadeName = "C:\\OpenCV-3.1.0\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_alt.xml";
-	int totalY = GetSystemMetrics(SM_CXSCREEN); //get total size in pixels of screen's height
-	int totalX = GetSystemMetrics(SM_CYSCREEN); //get total size in pixels of screen's width
+	
 	bool start = true; //flag for seting the cursor to middle of screen on start
 
 	if (!cap.isOpened())  // if not success, exit program
