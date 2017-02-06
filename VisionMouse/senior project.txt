@@ -1,10 +1,2 @@
-Current Program direction:
-
-Use opencv to track the right eye and use some method to differenciate four directions. UP, DOWN, LEFT, and RIGHT using these inputs we will use setcursorpos(x,y) to move the mouse using these simulated arrow key presses.
-
-CURRENT PROBLEM:
-Track the iris with enough certainty to have an up down left right. 
-
-POSSIBLE SOLUTION:
-Current idea is to define a point at the bridge of the nose and track the right eye only. then mesure the distance between these two points, if the distance is lower than a given length execute a left, if it is greater than a certain distance exceute right.
-ISSUE WITH SOULTION: how to define an up or down.
+to integrate both parts of the programe we will require threads.
+threads are diffferent on both OS's that we are using at the moment. two solutions possible, one abandon linux and develop soly on windows and only use windows threads, or two use a third party library such as boost:threads that abstracts to a different layer the threads and thus works for both os's
