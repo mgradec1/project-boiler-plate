@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
 {
 	
 	Mat frame;
+	Mat dst;
 	int key = 0;
 	/* initialize camera */
 	VideoCapture cap;
@@ -20,7 +21,7 @@ int main(int argc, char *argv[])
 
 	/* always check */
 	if (!cap.isOpened()) {
-		printf("Cannot open initialize webcam!\n");
+		printf("Cannot open/initialize webcam!\n");
 		exit(0);
 	}
 
@@ -42,28 +43,35 @@ int main(int argc, char *argv[])
 		Ptr<Tracker> tracker = Tracker::create("KCF");
 
 		cap >> frame;
-		roi = selectROI("tracker", frame);
 		
-		tracker->init(frame, roi);
+		//flip image about y-axis           
+		flip(frame, dst, 1);
+		
+		roi = selectROI("tracker", dst);
+		tracker->init(dst, roi);
 
 		while (true) {
 			//get frame from the camera
 			cap >> frame;
+			
+			//flip image about y-axis again          
+			flip(frame, dst, 1);
 
 			//if the frame is empty quit
 			if (frame.empty()) {
 				break;
 			}
 			//update the tracker
-			tracker->update(frame, roi);
-			//note left and right are flipped
-			SetCursorPos(roi.x * 3, roi.y *3);
+			tracker->update(dst, roi);
 			
+			//note left and right are flipped
+			SetCursorPos(roi.x * 3, roi.y * 3);
+
 			//draw the tracking square
-			rectangle(frame, roi, Scalar(255, 0, 0), 2, 1);
+			rectangle(dst, roi, Scalar(255, 0, 0), 2, 1);
 
 			//show the frame
-			imshow("Live", frame);
+			imshow("Live", dst);
 
 			if (waitKey(1) == 27) {
 				break;
