@@ -1,3 +1,6 @@
+// Author Mark A. Gradecki
+
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2\tracking.hpp>
@@ -9,19 +12,43 @@
 using namespace cv;
 using namespace std;
 
+//to use select one ROI then press space, then select the second object and press space, 
+//then press esc to start tracking, the first object that was tracked moves the mouse.
+//if the distance between the two objects is less than 100 pixels then it will click the mouse.
+
+
+
+//function to call for mouse click
+void mouseLeftClick(){
+	INPUT Input = { 0 };
+
+	// left mouse button down
+	Input.type = INPUT_MOUSE;
+	Input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+	::SendInput(1, &Input, sizeof(INPUT));
+
+	// left mouse button up
+	::ZeroMemory(&Input, sizeof(INPUT));
+	Input.type = INPUT_MOUSE;
+	Input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+	::SendInput(1, &Input, sizeof(INPUT));
+}
+
+
 int main(int argc, char *argv[])
 {
 	
 	Mat frame;
 	Mat dst;
 	int key = 0;
+	String trackingAlg = "KFC";
 	/* initialize camera */
 	VideoCapture cap;
 	cap.open(0);
 
 	/* always check */
 	if (!cap.isOpened()) {
-		printf("Cannot open/initialize webcam!\n");
+		printf("Cannot open initialize webcam!\n");
 		exit(0);
 	}
 
@@ -37,24 +64,29 @@ int main(int argc, char *argv[])
 		} 
 
 		/* sets the Region of Interest*/
-		Rect2d roi;
+		//Rect2d roi;
+		vector<Rect2d> objects;
 
 		//create tracker
-		Ptr<Tracker> tracker = Tracker::create("KCF");
+		//Ptr<Tracker> tracker = Tracker::create("KCF");
+		MultiTracker trackers("KCF");
 
 		cap >> frame;
-		
+
 		//flip image about y-axis           
 		flip(frame, dst, 1);
-		
-		roi = selectROI("tracker", dst);
-		tracker->init(dst, roi);
+
+		//roi = selectROI("tracker", dst);
+		selectROI("tracker", dst, objects);
+
+		//tracker->init(dst, roi);
+		trackers.add(dst, objects);
 
 		while (true) {
 			//get frame from the camera
 			cap >> frame;
-			
-			//flip image about y-axis again          
+
+			//flip image about y-axis           
 			flip(frame, dst, 1);
 
 			//if the frame is empty quit
@@ -62,16 +94,30 @@ int main(int argc, char *argv[])
 				break;
 			}
 			//update the tracker
-			tracker->update(dst, roi);
+			//tracker->update(dst, roi);
+			trackers.update(dst,objects);
+
+
+			SetCursorPos(objects[0].x * 3, objects[0].y * 3);
 			
-			//note left and right are flipped
-			SetCursorPos(roi.x * 3, roi.y * 3);
-
 			//draw the tracking square
-			rectangle(dst, roi, Scalar(255, 0, 0), 2, 1);
+			//rectangle(dst, roi, Scalar(255, 0, 0), 2, 1);
 
+			for (int i = 0; i < trackers.objects.size(); i++) {
+				rectangle(dst, trackers.objects[i], Scalar(255, 0, 0), 2, 1);
+			}
+			if (objects.size() > 1) {
+				//calculates the distance formula fot the two points
+				int xSqs = pow((objects[1].x - objects[0].x), 2);
+				int ySqs = pow((objects[1].y - objects[0].y), 2);
+				int distance = sqrt((xSqs + ySqs));
+				if (distance < 100) {
+					//if the two tracked points is close then click
+					mouseLeftClick();
+				}
+			}
 			//show the frame
-			imshow("Live", dst);
+			imshow("tracker", dst);
 
 			if (waitKey(1) == 27) {
 				break;
